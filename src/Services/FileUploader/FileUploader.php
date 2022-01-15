@@ -76,7 +76,7 @@ class FileUploader
 
                 if(!empty($this->convertedFiles)){
                     foreach($this->convertedFiles as $format=>$convertedFile){
-                        $this->data['formats'][$format] =  $dropboxClient->upload($convertedFile);
+                        $this->data['formats'][$format] =  $dropboxClient->upload(new \SplFileInfo($convertedFile));
                     }
                 }
                 break;
