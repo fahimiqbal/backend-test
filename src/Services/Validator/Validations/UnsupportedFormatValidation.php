@@ -16,7 +16,8 @@ class UnsupportedFormatValidation extends Validator implements ValidatorInterfac
     {
         if(isset($this->request->request) && !empty($this->request->request->all())){
             $formats = $this->request->request->all()['formats'];
-            if (array_intersect($this->availableFormats, $formats) != $this->availableFormats){
+
+            if (!empty($formats) && count(array_intersect($this->availableFormats, $formats)) != count($formats)){
                 $this->isValid = 0;
                 $this->response = $this->response->setStatusCode(Response::HTTP_BAD_REQUEST);
             }

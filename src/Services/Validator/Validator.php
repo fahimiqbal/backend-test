@@ -9,6 +9,7 @@ use Services\Validator\Validations\HasParametersValidation;
 use Services\Validator\Validations\UnknownServiceValidation;
 use Services\Validator\Validations\UnsupportedFormatValidation;
 use Services\Validator\Validations\CheckMethodValidation;
+use Services\Validator\Validations\UnsupportedFileValidation;
 
 class Validator
 {
@@ -22,7 +23,8 @@ class Validator
         HasParametersValidation::class,
         UnknownServiceValidation::class,
         UnsupportedFormatValidation::class,
-        CheckMethodValidation::class
+        CheckMethodValidation::class,
+        UnsupportedFileValidation::class
     ];
 
     protected $availableServices = ['dropbox', 's3', 'ftp'];
