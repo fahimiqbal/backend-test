@@ -1,13 +1,15 @@
 <?php
 namespace Services\Validator\Validations;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
 use Services\Validator\Validator;
 use Services\Validator\ValidatorInterface;
-use Symfony\Component\HttpFoundation\Response;
 
 class UnsupportedFileValidation extends Validator implements ValidatorInterface
 {
-    function __construct($request)
+    function __construct(Request $request)
     {
         parent::__construct($request);
     }

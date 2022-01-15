@@ -6,6 +6,8 @@ use FTPStub\FTPUploader;
 use PDFStub\Client;
 use S3Stub\Client as S3StubClient;
 
+use SplFileInfo;
+
 class FileUploader
 {
     protected $file;
@@ -18,7 +20,7 @@ class FileUploader
 
     protected $data;
 
-    function __construct(array $config, $file, string $upload, array $converts)
+    function __construct(array $config, SplFileInfo $file, string $upload, array $converts)
     {
         $this->config = $config;
 
@@ -95,7 +97,7 @@ class FileUploader
 
         if(!empty($this->convertedFiles)){
             foreach($this->convertedFiles as $format=>$convertedFile){
-                $this->data['formats'][$format] =  $dropboxClient->upload(new \SplFileInfo($convertedFile));
+                $this->data['formats'][$format] =  $dropboxClient->upload(new SplFileInfo($convertedFile));
             }
         }
     }
