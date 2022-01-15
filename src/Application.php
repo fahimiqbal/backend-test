@@ -2,6 +2,7 @@
 
 namespace App;
 
+//use Services\Validator\Validations\HasFileValidation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -38,8 +39,10 @@ class Application
   public function handleRequest(Request $request): Response
   {
     $validator = (new Validator($request))->validate();
-
     if(!$validator->isValid()) return $validator->getResponse();
+
+    /* $validator = (new HasFileValidation($request))->check();
+    if(!$validator->isValid()) return $validator->getResponse(); */
 
     return new Response(
       'Content',
