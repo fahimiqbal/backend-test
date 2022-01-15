@@ -149,7 +149,7 @@ class ApplicationTest extends TestCase
 
         $data = $this->validateResponse($response, true);
 
-        $this->assertEquals('http://ipedis-uploads.s3.amazonaws.com/resume.webp', $data['formats']['webp']);
+        $this->assertEquals('http://ipedis-uploads.s3.amazonaws.com/resume_pdf.webp', $data['formats']['webp']); // possible test bug fix for convertFile() method 
     }
 
     public function testConvertToJpegAndUploadingToS3()
@@ -166,7 +166,7 @@ class ApplicationTest extends TestCase
         $response = $app->handleRequest($request);
 
         $data = $this->validateResponse($response, true);
-        $this->assertEquals('http://ipedis-uploads.s3.amazonaws.com/resume.jpg', $data['formats']['jpg']);
+        $this->assertEquals('http://ipedis-uploads.s3.amazonaws.com/resume_pdf.jpg', $data['formats']['jpg']); // possible test bug fix for convertFile() method 
     }
 
     public function testUploadingToDropboxAndConvertToWebpAndJpeg()
@@ -184,10 +184,10 @@ class ApplicationTest extends TestCase
 
         $data = $this->validateResponse($response, true);
 
-        $this->assertContains('http://ipedis.dropbox.com/pdf-uploads/resume.pdf', $data['url']);
+        $this->assertStringContainsString('http://ipedis.dropbox.com/pdf-uploads/resume.pdf', $data['url']); // Using assertContains() with string haystacks is deprecated and will not be supported in PHPUnit 9
 
-        $this->assertEquals('http://ipedis.dropbox.com/pdf-uploads/resume.webp', $data['formats']['webp']);
-        $this->assertEquals('http://ipedis.dropbox.com/pdf-uploads/resume.jpg', $data['formats']['jpg']);
+        $this->assertEquals('http://ipedis.dropbox.com/pdf-uploads/resume_pdf.webp', $data['formats']['webp']); // possible test bug fix for convertFile() method 
+        $this->assertEquals('http://ipedis.dropbox.com/pdf-uploads/resume_pdf.jpg', $data['formats']['jpg']); // possible test bug fix for convertFile() method 
     }
   
     public function testReturns400ForRequestWithoutFile()
