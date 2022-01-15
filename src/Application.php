@@ -5,6 +5,8 @@ namespace App;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+use Services\Validator\Validator;
+
 /**
  * You should implement this class however you want.
  * 
@@ -35,6 +37,10 @@ class Application
    */
   public function handleRequest(Request $request): Response
   {
+    $validator = (new Validator($request))->validate();
+
+    if(!$validator->isValid()) return $validator->getResponse();
+
     return new Response(
       'Content',
       Response::HTTP_OK,
