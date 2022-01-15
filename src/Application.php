@@ -45,8 +45,11 @@ class Application
   {
     $validator = (new Validator($request))->validate();
     if(!$validator->isValid()) return $validator->getResponse();
+
+    $allRequests = $request->request->all();
+    $allFiles = $request->files->all();
     
-    $fileUploader = new FileUploader($this->config, $request->files->all()['file'], $request->request->all()['upload'], $request->request->all()['formats']);
+    $fileUploader = new FileUploader($this->config, $allFiles['file'], $allRequests['upload'], $allRequests['formats']);
     $data = $fileUploader->convert()->upload()->getData();
 
     /* $validator = (new HasFileValidation($request))->check();
