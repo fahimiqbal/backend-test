@@ -47,42 +47,57 @@ class FileUploader
     {
         switch(strtolower($this->upload))
         {
-            case 'ftp': $ftpUploader = new FTPUploader();
-                if($ftpUploader->uploadFile($this->file, $this->config['ftp']['hostname'], $this->config['ftp']['username'],  $this->config['ftp']['password'], $this->config['ftp']['destination'])){
-                    $this->data['url'] = "ftp://{$this->config['ftp']['hostname']}/{$this->config['ftp']['destination']}/{$this->file->getFilename()}";
-                }
-
-                if(!empty($this->convertedFiles)){
-                    foreach($this->convertedFiles as $format=>$convertedFile){
-                        if($ftpUploader->uploadFile($convertedFile, $this->config['ftp']['hostname'], $this->config['ftp']['username'],  $this->config['ftp']['password'], $this->config['ftp']['destination'])){
-                            $this->data['formats'][$format] = "ftp://{$this->config['ftp']['hostname']}/{$this->config['ftp']['destination']}/{$convertedFile->getFilename()}";
-                        }
-                    }
-                }
+            case 'ftp': $this->ftpUpload();
                 break;
 
-            case 's3': $s3Client = new S3StubClient($this->config['s3']['access_key_id'], $this->config['s3']['secret_access_key']);
-                $this->data['url'] = $s3Client->send($this->file, $this->config['s3']['bucketname'])->getPublicUrl();
-
-                if(!empty($this->convertedFiles)){
-                    foreach($this->convertedFiles as $format=>$convertedFile){
-                        $this->data['formats'][$format] = $s3Client->send($convertedFile, $this->config['s3']['bucketname'])->getPublicUrl();
-                    }
-                }
+            case 's3': $this->s3Upload();
                 break;
 
-            case 'dropbox': $dropboxClient = new DropboxClient($this->config['dropbox']['access_key'], $this->config['dropbox']['secret_token'], $this->config['dropbox']['container']);
-                $this->data['url'] = $dropboxClient->upload($this->file);
-
-                if(!empty($this->convertedFiles)){
-                    foreach($this->convertedFiles as $format=>$convertedFile){
-                        $this->data['formats'][$format] =  $dropboxClient->upload(new \SplFileInfo($convertedFile));
-                    }
-                }
+            case 'dropbox': $this->dropboxUpload();
                 break;
         }
 
         return $this;
+    }
+
+    private function ftpUpload()
+    {
+        $ftpUploader = new FTPUploader();
+        if($ftpUploader->uploadFile($this->file, $this->config['ftp']['hostname'], $this->config['ftp']['username'],  $this->config['ftp']['password'], $this->config['ftp']['destination'])){
+            $this->data['url'] = "ftp://{$this->config['ftp']['hostname']}/{$this->config['ftp']['destination']}/{$this->file->getFilename()}";
+        }
+
+        if(!empty($this->convertedFiles)){
+            foreach($this->convertedFiles as $format=>$convertedFile){
+                if($ftpUploader->uploadFile($convertedFile, $this->config['ftp']['hostname'], $this->config['ftp']['username'],  $this->config['ftp']['password'], $this->config['ftp']['destination'])){
+                    $this->data['formats'][$format] = "ftp://{$this->config['ftp']['hostname']}/{$this->config['ftp']['destination']}/{$convertedFile->getFilename()}";
+                }
+            }
+        }
+    }
+
+    private function s3Upload()
+    {
+        $s3Client = new S3StubClient($this->config['s3']['access_key_id'], $this->config['s3']['secret_access_key']);
+        $this->data['url'] = $s3Client->send($this->file, $this->config['s3']['bucketname'])->getPublicUrl();
+
+        if(!empty($this->convertedFiles)){
+            foreach($this->convertedFiles as $format=>$convertedFile){
+                $this->data['formats'][$format] = $s3Client->send($convertedFile, $this->config['s3']['bucketname'])->getPublicUrl();
+            }
+        }
+    }
+
+    private function dropboxUpload()
+    {
+        $dropboxClient = new DropboxClient($this->config['dropbox']['access_key'], $this->config['dropbox']['secret_token'], $this->config['dropbox']['container']);
+        $this->data['url'] = $dropboxClient->upload($this->file);
+
+        if(!empty($this->convertedFiles)){
+            foreach($this->convertedFiles as $format=>$convertedFile){
+                $this->data['formats'][$format] =  $dropboxClient->upload(new \SplFileInfo($convertedFile));
+            }
+        }
     }
 
     public function getData()
