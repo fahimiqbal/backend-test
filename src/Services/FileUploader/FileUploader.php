@@ -2,6 +2,7 @@
 namespace Services\FileUploader;
 
 use DropboxStub\DropboxClient;
+use Exception;
 use FTPStub\FTPUploader;
 use PDFStub\Client;
 use S3Stub\Client as S3StubClient;
@@ -20,6 +21,14 @@ class FileUploader
 
     protected $data;
 
+
+    /**
+     *
+     * @param array $config
+     * @param SplFileInfo $file
+     * @param string $upload
+     * @param array $converts
+     */
     function __construct(array $config, SplFileInfo $file, string $upload, array $converts)
     {
         $this->config = $config;
@@ -31,7 +40,11 @@ class FileUploader
         $this->converts = $converts;
     }
 
-
+    /**
+     * Converts file to deisred formats
+     *
+     * @return object
+     */
     public function convert()
     {
         if(!empty($this->converts)){
@@ -45,6 +58,11 @@ class FileUploader
         return $this;
     }
 
+    /**
+     * Uploads files to mentioned storage
+     *
+     * @return object
+     */
     public function upload()
     {
         switch(strtolower($this->upload))
@@ -62,6 +80,11 @@ class FileUploader
         return $this;
     }
 
+    /**
+     * Uploads files to FTP server
+     *
+     * @return void
+     */
     private function ftpUpload()
     {
         $ftpUploader = new FTPUploader();
@@ -78,6 +101,12 @@ class FileUploader
         }
     }
 
+
+    /**
+     * Uploads files to S3 server
+     *
+     * @return void
+     */
     private function s3Upload()
     {
         $s3Client = new S3StubClient($this->config['s3']['access_key_id'], $this->config['s3']['secret_access_key']);
@@ -90,6 +119,12 @@ class FileUploader
         }
     }
 
+
+    /**
+     * Uploads files to Dropbox server
+     *
+     * @return void
+     */
     private function dropboxUpload()
     {
         $dropboxClient = new DropboxClient($this->config['dropbox']['access_key'], $this->config['dropbox']['secret_token'], $this->config['dropbox']['container']);
@@ -102,6 +137,12 @@ class FileUploader
         }
     }
 
+
+    /**
+     * returns data
+     *
+     * @return array
+     */
     public function getData()
     {
         return $this->data;

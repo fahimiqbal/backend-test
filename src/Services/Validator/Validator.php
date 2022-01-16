@@ -52,11 +52,21 @@ class Validator
         $this->isValid = true;
     }
 
+    /**
+     * Defines if the request is valid
+     *
+     * @return boolean
+     */
     public function isValid()
     {
         return $this->isValid;
     }
 
+    /**
+     * Returns updated response according to the validation rules
+     *
+     * @return Response 
+     */
     public function getResponse()
     {
         return $this->response;
