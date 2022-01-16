@@ -19,8 +19,10 @@ class ApplicationTest extends TestCase
      * 
      * @return Application
      */
-    protected function provideApplication()
+    protected function provideApplication($config=[])
     {
+        if(!empty($config)) return new Application($config);
+
         return new Application([
             'ftp' => [
                 'hostname' => 'uploads.ipedis.com',
@@ -82,6 +84,46 @@ class ApplicationTest extends TestCase
         $data = $this->validateResponse($response, true);
 
         $this->assertEquals('ftp://uploads.ipedis.com/pdf/resume_pdf.png', $data['formats']['png']); // possible test bug fix for convertFile() method 
+    }
+
+
+    public function testApplicationWithWrongFtpConfig()
+    {
+        $app = $this->provideApplication([
+            'ftp' => [
+                'hostname' => 'uploads.ipedis.com',
+                'username' => 'tester',
+                'password' => 'WRONG___PASSWORD____FOR____TEST',
+                'destination' => 'pdf'
+            ],
+            's3' => [
+                'access_key_id' => 'accessKeyId123',
+                'secret_access_key' => 'secretTokenOfTeh31337',
+                'bucketname' => 'ipedis-uploads'
+            ],
+            'dropbox' => [
+                'access_key' => 'fsghfdigsdfgs',
+                'secret_token' => 'sgfdgsu43rg',
+                'container' => 'pdf-uploads'
+            ],
+            'pdf-convertor.com' => [
+                'app_id' => 'ipedis-fgdfgg87gf7d',
+                'access_token' => '234556fghdfgsdfsehery234'
+            ]
+        ]);
+
+        $request = Request::create('/', 'POST', [
+            'upload' => 'ftp',
+            'formats' => ['png']
+        ], [], [
+            'file' => $this->provideUploadedFile('resume.pdf')
+        ]);
+
+        $response = $app->handleRequest($request);
+
+        $this->assertInstanceOf(Response::class, $response, 'Application should always return Response object');
+
+        $this->assertEquals(Response::HTTP_NOT_IMPLEMENTED, $response->getStatusCode(), 'Requests without parameters should return HTTP Code 400 in the response.');
     }
     /************************************
      * DO NOT CHANGE ANYTHING BELOW
