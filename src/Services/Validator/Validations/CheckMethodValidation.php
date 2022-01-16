@@ -14,6 +14,11 @@ class CheckMethodValidation extends Validator implements ValidatorInterface
         parent::__construct($request);
     }
 
+    /**
+     * Validation rule logic
+     *
+     * @return object
+     */
     public function check()
     {
         if(!$this->request->isMethod('POST')){

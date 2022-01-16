@@ -14,6 +14,11 @@ class UnsupportedFormatValidation extends Validator implements ValidatorInterfac
         parent::__construct($request);
     }
 
+    /**
+     * Validation rule logic
+     *
+     * @return object
+     */
     public function check()
     {
         if(isset($this->request->request) && !empty($this->request->request->all())){

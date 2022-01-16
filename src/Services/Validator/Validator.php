@@ -18,6 +18,11 @@ class Validator
 
     protected $isValid;
 
+    /**
+     * Register all validation rule class under this array
+     *
+     * @validations array
+     */
     private $validations = [
         HasFileValidation::class,
         HasParametersValidation::class,
@@ -31,6 +36,11 @@ class Validator
 
     protected $availableFormats = ['jpg', 'webp', 'png'];
 
+    /**
+     * Request should be passed
+     *
+     * @param Request $request
+     */
     function __construct(Request $request)
     {
         $this->request = $request;
@@ -52,6 +62,11 @@ class Validator
         return $this->response;
     }
 
+    /**
+     * Executing registered validation rules
+     *
+     * @return object
+     */
     public function validate()
     {
         foreach ($this->validations as $validation) {

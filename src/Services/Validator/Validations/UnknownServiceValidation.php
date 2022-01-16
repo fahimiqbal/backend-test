@@ -14,6 +14,11 @@ class UnknownServiceValidation extends Validator implements ValidatorInterface
         parent::__construct($request);
     }
 
+    /**
+     * Validation rule logic
+     *
+     * @return object
+     */
     public function check()
     {
         if(isset($this->request->request) && !empty($this->request->request->all())){

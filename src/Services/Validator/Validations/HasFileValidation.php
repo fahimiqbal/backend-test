@@ -14,6 +14,11 @@ class HasFileValidation extends Validator implements ValidatorInterface
         parent::__construct($request);
     }
 
+    /**
+     * Validation rule logic
+     *
+     * @return object
+     */
     public function check()
     {
         if(!isset($this->request->files) || empty($this->request->files->all())){
