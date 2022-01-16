@@ -77,4 +77,8 @@ The existing tests can contain some errors. They were created by a code architec
 
 
 ## Developer Comments
-===================================================
+
+- It's a nice test project. Really enjoyed the TDD approach.
+- Tried to maintain architectural principals as much as possible.
+- 100% code testing coverage
+- There was a bug in test file regarding converted file naming that was being generated in PDFStub\Client convertFile() method
