@@ -66,6 +66,23 @@ class ApplicationTest extends TestCase
     }
 
 
+    public function testConvertToPngUploadOnFtp()
+    {
+        $app = $this->provideApplication();
+
+        $request = Request::create('/', 'POST', [
+            'upload' => 'ftp',
+            'formats' => ['png']
+        ], [], [
+            'file' => $this->provideUploadedFile('resume.pdf')
+        ]);
+
+        $response = $app->handleRequest($request);
+
+        $data = $this->validateResponse($response, true);
+
+        $this->assertEquals('ftp://uploads.ipedis.com/pdf/resume_pdf.png', $data['formats']['png']); // possible test bug fix for convertFile() method 
+    }
     /************************************
      * DO NOT CHANGE ANYTHING BELOW
      ************************************/

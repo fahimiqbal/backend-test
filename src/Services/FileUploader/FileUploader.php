@@ -94,8 +94,9 @@ class FileUploader
 
         if(!empty($this->convertedFiles)){
             foreach($this->convertedFiles as $format=>$convertedFile){
-                if($ftpUploader->uploadFile($convertedFile, $this->config['ftp']['hostname'], $this->config['ftp']['username'],  $this->config['ftp']['password'], $this->config['ftp']['destination'])){
-                    $this->data['formats'][$format] = "ftp://{$this->config['ftp']['hostname']}/{$this->config['ftp']['destination']}/{$convertedFile->getFilename()}";
+                $file = new SplFileInfo($convertedFile);
+                if($ftpUploader->uploadFile($file, $this->config['ftp']['hostname'], $this->config['ftp']['username'],  $this->config['ftp']['password'], $this->config['ftp']['destination'])){
+                    $this->data['formats'][$format] = "ftp://{$this->config['ftp']['hostname']}/{$this->config['ftp']['destination']}/{$file->getFilename()}";
                 }
             }
         }
