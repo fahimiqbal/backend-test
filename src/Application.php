@@ -3,6 +3,8 @@
 namespace App;
 
 //use Services\Validator\Validations\HasFileValidation;
+
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -43,23 +45,34 @@ class Application
    */
   public function handleRequest(Request $request): Response
   {
-    $validator = (new Validator($request))->validate();
-    if(!$validator->isValid()) return $validator->getResponse();
+    try{
+      $validator = (new Validator($request))->validate();
+      if(!$validator->isValid()) return $validator->getResponse();
+  
+      $allRequests = $request->request->all();
+      $allFiles = $request->files->all();
+      
+      $fileUploader = new FileUploader($this->config, $allFiles['file'], $allRequests['upload'], $allRequests['formats']);
+      $data = $fileUploader->convert()->upload()->getData();
+  
+      /* $validator = (new HasFileValidation($request))->check();
+      if(!$validator->isValid()) return $validator->getResponse(); */
+  
+      $response = new Response(
+        json_encode($data),
+        Response::HTTP_OK,
+        ['content-type' => 'application/json']
+      );
+    }
+    catch(Exception $e){
+      $response = new Response(
+        '',
+        Response::HTTP_NOT_IMPLEMENTED,
+        ['content-type' => 'application/json']
+      );
 
-    $allRequests = $request->request->all();
-    $allFiles = $request->files->all();
-    
-    $fileUploader = new FileUploader($this->config, $allFiles['file'], $allRequests['upload'], $allRequests['formats']);
-    $data = $fileUploader->convert()->upload()->getData();
-
-    /* $validator = (new HasFileValidation($request))->check();
-    if(!$validator->isValid()) return $validator->getResponse(); */
-
-    $response = new Response(
-      json_encode($data),
-      Response::HTTP_OK,
-      ['content-type' => 'application/json']
-    );
+      // Should log error and notify
+    }
 
     $response->setCharset('UTF-8');
 
