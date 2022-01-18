@@ -1,9 +1,10 @@
 <?php
-namespace Services\FileUploader;
+namespace Services\FileUploader\FileUploaders;
 
 
 use FTPStub\FTPUploader;
-
+use Services\FileUploader\AbstractFileUploader;
+use Services\FileUploader\FileUploaderInterface;
 use SplFileInfo;
 
 class FtpFileUploader extends AbstractFileUploader implements FileUploaderInterface

@@ -6,7 +6,8 @@ use Exception;
 use FTPStub\FTPUploader;
 use PDFStub\Client;
 use S3Stub\Client as S3StubClient;
-
+use Services\FileUploader\FileUploaders\FtpFileUploader;
+use Services\FileUploader\FileUploaders\S3FileUploader;
 use SplFileInfo;
 
 class FileUploader
@@ -38,6 +39,9 @@ class FileUploader
         $this->upload = $upload;
 
         $this->converts = $converts;
+
+        $this->ftpFileUploader = new FtpFileUploader($this->config['ftp']);
+        $this->s3FileUploader = new S3FileUploader($this->config['s3']);
     }
 
     /**
@@ -87,17 +91,13 @@ class FileUploader
      */
     private function ftpUpload()
     {
-        $ftpUploader = new FTPUploader();
-        if($ftpUploader->uploadFile($this->file, $this->config['ftp']['hostname'], $this->config['ftp']['username'],  $this->config['ftp']['password'], $this->config['ftp']['destination'])){
-            $this->data['url'] = "ftp://{$this->config['ftp']['hostname']}/{$this->config['ftp']['destination']}/{$this->file->getFilename()}";
-        }
+        $this->data['url'] = $this->ftpFileUploader->transferFile($this->file);
 
         if(!empty($this->convertedFiles)){
             foreach($this->convertedFiles as $format=>$convertedFile){
                 $file = new SplFileInfo($convertedFile);
-                if($ftpUploader->uploadFile($file, $this->config['ftp']['hostname'], $this->config['ftp']['username'],  $this->config['ftp']['password'], $this->config['ftp']['destination'])){
-                    $this->data['formats'][$format] = "ftp://{$this->config['ftp']['hostname']}/{$this->config['ftp']['destination']}/{$file->getFilename()}";
-                }
+                $this->data['formats'][$format] = $this->ftpFileUploader->transferFile($file);
+                
             }
         }
     }
@@ -110,12 +110,13 @@ class FileUploader
      */
     private function s3Upload()
     {
-        $s3Client = new S3StubClient($this->config['s3']['access_key_id'], $this->config['s3']['secret_access_key']);
-        $this->data['url'] = $s3Client->send($this->file, $this->config['s3']['bucketname'])->getPublicUrl();
+        $this->data['url'] = $this->s3FileUploader->transferFile($this->file);
 
         if(!empty($this->convertedFiles)){
             foreach($this->convertedFiles as $format=>$convertedFile){
-                $this->data['formats'][$format] = $s3Client->send($convertedFile, $this->config['s3']['bucketname'])->getPublicUrl();
+                $file = new SplFileInfo($convertedFile);
+                $this->data['formats'][$format] = $this->s3FileUploader->transferFile($file);
+                
             }
         }
     }
