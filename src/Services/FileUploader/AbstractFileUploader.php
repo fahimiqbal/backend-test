@@ -5,24 +5,13 @@ use PDFStub\Client;
 
 abstract class AbstractFileUploader
 {
-    abstract public function transfer();
-
-
     /**
-     * Converts file to deisred formats
+     * returns data
      *
-     * @return object
+     * @return array
      */
-    public function convert()
+    public function getData()
     {
-        if(!empty($this->converts)){
-            $this->pdfConverter = new Client($this->config['pdf-convertor.com']['app_id'], $this->config['pdf-convertor.com']['access_token']);
-
-            foreach($this->converts as $format){
-                $this->convertedFiles[$format] = $this->pdfConverter->convertFile($this->file, $format);
-            }
-        }
-
-        return $this;
+        return $this->data;
     }
 }
