@@ -1,11 +1,8 @@
 <?php
 namespace Services\FileUploader;
 
-use DropboxStub\DropboxClient;
-use Exception;
-use FTPStub\FTPUploader;
+
 use PDFStub\Client;
-use S3Stub\Client as S3StubClient;
 use Services\FileUploader\FileUploaders\DropboxFileUploader;
 use Services\FileUploader\FileUploaders\FtpFileUploader;
 use Services\FileUploader\FileUploaders\S3FileUploader;
@@ -71,77 +68,35 @@ class FileUploader
      */
     public function upload()
     {
-        switch(strtolower($this->upload))
-        {
-            case 'ftp': $this->ftpUpload();
-                break;
+        $uploaderInstance = $this->getUploaderInstance();
 
-            case 's3': $this->s3Upload();
-                break;
+        $this->data['url'] = $uploaderInstance->transferFile($this->file);
 
-            case 'dropbox': $this->dropboxUpload();
-                break;
+        if(!empty($this->convertedFiles)){
+            foreach($this->convertedFiles as $format=>$convertedFile){
+                $file = new SplFileInfo($convertedFile);
+                $this->data['formats'][$format] = $uploaderInstance->transferFile($file);
+                
+            }
         }
 
         return $this;
     }
 
-    /**
-     * Uploads files to FTP server
-     *
-     * @return void
-     */
-    private function ftpUpload()
+    private function getUploaderInstance()
     {
-        $this->data['url'] = $this->ftpFileUploader->transferFile($this->file);
+        switch(strtolower($this->upload))
+        {
+            case 'ftp': return $this->ftpFileUploader;
+                break;
 
-        if(!empty($this->convertedFiles)){
-            foreach($this->convertedFiles as $format=>$convertedFile){
-                $file = new SplFileInfo($convertedFile);
-                $this->data['formats'][$format] = $this->ftpFileUploader->transferFile($file);
-                
-            }
+            case 's3': return $this->s3FileUploader;
+                break;
+
+            case 'dropbox': return $this->dropboxFileUploader;
+                break;
         }
     }
-
-
-    /**
-     * Uploads files to S3 server
-     *
-     * @return void
-     */
-    private function s3Upload()
-    {
-        $this->data['url'] = $this->s3FileUploader->transferFile($this->file);
-
-        if(!empty($this->convertedFiles)){
-            foreach($this->convertedFiles as $format=>$convertedFile){
-                $file = new SplFileInfo($convertedFile);
-                $this->data['formats'][$format] = $this->s3FileUploader->transferFile($file);
-                
-            }
-        }
-    }
-
-
-    /**
-     * Uploads files to Dropbox server
-     *
-     * @return void
-     */
-    private function dropboxUpload()
-    {
-        $this->data['url'] = $this->dropboxFileUploader->transferFile($this->file);
-
-        if(!empty($this->convertedFiles)){
-            foreach($this->convertedFiles as $format=>$convertedFile){
-                $file = new SplFileInfo($convertedFile);
-                $this->data['formats'][$format] = $this->dropboxFileUploader->transferFile($file);
-                
-            }
-        }
-    }
-
 
     /**
      * returns data
