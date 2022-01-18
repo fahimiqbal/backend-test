@@ -89,17 +89,7 @@ class FileUploader
 
     private function getUploaderInstance()
     {
-        switch(strtolower($this->upload))
-        {
-            case 'ftp': return $this->ftpFileUploader;
-                break;
-
-            case 's3': return $this->s3FileUploader;
-                break;
-
-            case 'dropbox': return $this->dropboxFileUploader;
-                break;
-        }
+        return $this->{strtolower($this->upload).'FileUploader'};
     }
 
     /** 
