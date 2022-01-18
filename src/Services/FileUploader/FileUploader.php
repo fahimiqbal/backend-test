@@ -98,7 +98,7 @@ class FileUploader
         }
     }
 
-    /**
+    /** 
      * returns data
      *
      * @return array
