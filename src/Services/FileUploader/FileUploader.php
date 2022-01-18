@@ -10,15 +10,19 @@ use SplFileInfo;
 
 class FileUploader
 {
-    protected $file;
-    protected $config;
-    protected $upload;
-    protected $converts;
+    private $file;
+    private $config;
+    private $upload;
+    private $converts;
 
-    protected $convertedFiles;
-    protected $pdfConverter;
+    private $convertedFiles;
+    private $pdfConverter;
 
-    protected $data;
+    private $data;
+
+    private $ftpFileUploader;
+    private $s3FileUploader;
+    private $dropboxFileUploader;
 
 
     /**
