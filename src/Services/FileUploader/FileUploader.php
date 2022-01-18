@@ -6,6 +6,7 @@ use Exception;
 use FTPStub\FTPUploader;
 use PDFStub\Client;
 use S3Stub\Client as S3StubClient;
+use Services\FileUploader\FileUploaders\DropboxFileUploader;
 use Services\FileUploader\FileUploaders\FtpFileUploader;
 use Services\FileUploader\FileUploaders\S3FileUploader;
 use SplFileInfo;
@@ -42,6 +43,7 @@ class FileUploader
 
         $this->ftpFileUploader = new FtpFileUploader($this->config['ftp']);
         $this->s3FileUploader = new S3FileUploader($this->config['s3']);
+        $this->dropboxFileUploader = new DropboxFileUploader($this->config['dropbox']);
     }
 
     /**
@@ -129,12 +131,13 @@ class FileUploader
      */
     private function dropboxUpload()
     {
-        $dropboxClient = new DropboxClient($this->config['dropbox']['access_key'], $this->config['dropbox']['secret_token'], $this->config['dropbox']['container']);
-        $this->data['url'] = $dropboxClient->upload($this->file);
+        $this->data['url'] = $this->dropboxFileUploader->transferFile($this->file);
 
         if(!empty($this->convertedFiles)){
             foreach($this->convertedFiles as $format=>$convertedFile){
-                $this->data['formats'][$format] =  $dropboxClient->upload(new SplFileInfo($convertedFile));
+                $file = new SplFileInfo($convertedFile);
+                $this->data['formats'][$format] = $this->dropboxFileUploader->transferFile($file);
+                
             }
         }
     }
