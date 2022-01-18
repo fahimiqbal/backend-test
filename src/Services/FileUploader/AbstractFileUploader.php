@@ -1,8 +1,6 @@
 <?php
 namespace Services\FileUploader;
 
-use PDFStub\Client;
-
 abstract class AbstractFileUploader
 {
     /**
