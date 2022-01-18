@@ -1,12 +1,11 @@
 <?php
 namespace Services\FileUploader;
 
-use DropboxStub\DropboxClient;
-use Exception;
-use FTPStub\FTPUploader;
-use PDFStub\Client;
-use S3Stub\Client as S3StubClient;
 
+use PDFStub\Client;
+use Services\FileUploader\FileUploaders\DropboxFileUploader;
+use Services\FileUploader\FileUploaders\FtpFileUploader;
+use Services\FileUploader\FileUploaders\S3FileUploader;
 use SplFileInfo;
 
 class FileUploader
@@ -38,6 +37,10 @@ class FileUploader
         $this->upload = $upload;
 
         $this->converts = $converts;
+
+        $this->ftpFileUploader = new FtpFileUploader($this->config['ftp']);
+        $this->s3FileUploader = new S3FileUploader($this->config['s3']);
+        $this->dropboxFileUploader = new DropboxFileUploader($this->config['dropbox']);
     }
 
     /**
@@ -65,79 +68,35 @@ class FileUploader
      */
     public function upload()
     {
-        switch(strtolower($this->upload))
-        {
-            case 'ftp': $this->ftpUpload();
-                break;
+        $uploaderInstance = $this->getUploaderInstance();
 
-            case 's3': $this->s3Upload();
-                break;
+        $this->data['url'] = $uploaderInstance->transferFile($this->file);
 
-            case 'dropbox': $this->dropboxUpload();
-                break;
+        if(!empty($this->convertedFiles)){
+            foreach($this->convertedFiles as $format=>$convertedFile){
+                $file = new SplFileInfo($convertedFile);
+                $this->data['formats'][$format] = $uploaderInstance->transferFile($file);
+                
+            }
         }
 
         return $this;
     }
 
-    /**
-     * Uploads files to FTP server
-     *
-     * @return void
-     */
-    private function ftpUpload()
+    private function getUploaderInstance()
     {
-        $ftpUploader = new FTPUploader();
-        if($ftpUploader->uploadFile($this->file, $this->config['ftp']['hostname'], $this->config['ftp']['username'],  $this->config['ftp']['password'], $this->config['ftp']['destination'])){
-            $this->data['url'] = "ftp://{$this->config['ftp']['hostname']}/{$this->config['ftp']['destination']}/{$this->file->getFilename()}";
-        }
+        switch(strtolower($this->upload))
+        {
+            case 'ftp': return $this->ftpFileUploader;
+                break;
 
-        if(!empty($this->convertedFiles)){
-            foreach($this->convertedFiles as $format=>$convertedFile){
-                $file = new SplFileInfo($convertedFile);
-                if($ftpUploader->uploadFile($file, $this->config['ftp']['hostname'], $this->config['ftp']['username'],  $this->config['ftp']['password'], $this->config['ftp']['destination'])){
-                    $this->data['formats'][$format] = "ftp://{$this->config['ftp']['hostname']}/{$this->config['ftp']['destination']}/{$file->getFilename()}";
-                }
-            }
+            case 's3': return $this->s3FileUploader;
+                break;
+
+            case 'dropbox': return $this->dropboxFileUploader;
+                break;
         }
     }
-
-
-    /**
-     * Uploads files to S3 server
-     *
-     * @return void
-     */
-    private function s3Upload()
-    {
-        $s3Client = new S3StubClient($this->config['s3']['access_key_id'], $this->config['s3']['secret_access_key']);
-        $this->data['url'] = $s3Client->send($this->file, $this->config['s3']['bucketname'])->getPublicUrl();
-
-        if(!empty($this->convertedFiles)){
-            foreach($this->convertedFiles as $format=>$convertedFile){
-                $this->data['formats'][$format] = $s3Client->send($convertedFile, $this->config['s3']['bucketname'])->getPublicUrl();
-            }
-        }
-    }
-
-
-    /**
-     * Uploads files to Dropbox server
-     *
-     * @return void
-     */
-    private function dropboxUpload()
-    {
-        $dropboxClient = new DropboxClient($this->config['dropbox']['access_key'], $this->config['dropbox']['secret_token'], $this->config['dropbox']['container']);
-        $this->data['url'] = $dropboxClient->upload($this->file);
-
-        if(!empty($this->convertedFiles)){
-            foreach($this->convertedFiles as $format=>$convertedFile){
-                $this->data['formats'][$format] =  $dropboxClient->upload(new SplFileInfo($convertedFile));
-            }
-        }
-    }
-
 
     /**
      * returns data
