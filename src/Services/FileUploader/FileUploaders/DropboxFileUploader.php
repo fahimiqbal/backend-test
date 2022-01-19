@@ -20,7 +20,7 @@ class DropboxFileUploader extends AbstractFileUploader implements FileUploaderIn
     }
 
 
-    public function transferFile(SplFileInfo $file)
+    public function transferFile(SplFileInfo $file): string
     {
         $this->data['url'] = $this->dropboxClient->upload(new SplFileInfo($file));
 

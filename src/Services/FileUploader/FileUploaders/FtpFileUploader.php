@@ -20,7 +20,7 @@ class FtpFileUploader extends AbstractFileUploader implements FileUploaderInterf
     }
 
 
-    public function transferFile(SplFileInfo $file)
+    public function transferFile(SplFileInfo $file): string
     {
         if($this->ftpUploader->uploadFile($file, $this->config['hostname'], $this->config['username'],  $this->config['password'], $this->config['destination'])){
             $this->data['url'] = "ftp://{$this->config['hostname']}/{$this->config['destination']}/{$file->getFilename()}";

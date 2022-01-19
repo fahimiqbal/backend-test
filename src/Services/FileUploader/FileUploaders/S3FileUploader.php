@@ -20,7 +20,7 @@ class S3FileUploader extends AbstractFileUploader implements FileUploaderInterfa
     }
 
 
-    public function transferFile(SplFileInfo $file)
+    public function transferFile(SplFileInfo $file): string
     {
         $this->data['url'] = $this->s3Client->send($file, $this->config['bucketname'])->getPublicUrl();
 

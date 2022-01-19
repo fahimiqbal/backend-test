@@ -11,5 +11,5 @@ interface FileUploaderInterface
      *
      * @return object
      */
-    public function transferFile(SplFileInfo $file);
+    public function transferFile(SplFileInfo $file): string;
 }
